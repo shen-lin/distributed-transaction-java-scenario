@@ -29,6 +29,11 @@
             return bank + ': ' + message;
         }
 
+        function testRMQ() {
+            xhttp.open("POST", "/testRMQ", true);
+            xhttp.send();
+        }
+
         function createDB() {
             setMask(true);
             xhttp.onreadystatechange = function () {
@@ -124,6 +129,11 @@
 </head>
 
 <body>
+    <div style="background: #F9F9F9;">
+        <h3>Test RMQ</h3>
+        <button id="testRMQ" onClick='testRMQ()'>Test RMQ</button>
+    </div>
+
     <div style="background: #F9F9F9;">
         <h3>Create BankAccount database for Bank of America and Chase</h3>
         <button id="createDB" onClick='createDB()'>Create</button>
