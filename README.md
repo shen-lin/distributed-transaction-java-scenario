@@ -1,10 +1,15 @@
 ## Build
 
 ./gradlew.bat clean build
+./gradlew clean build
 
 ## Watch src file changes and continously build. Run in two separate terminals.
 ./gradlew.bat -t build 
 ./gradlew.bat bootRun
+
+
+./gradlew -t build 
+./gradlew bootRun
 
 ## Start RocketMQ locally
 
