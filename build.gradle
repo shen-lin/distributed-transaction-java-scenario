@@ -31,9 +31,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-jersey'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	runtimeOnly 'mysql:mysql-connector-java'
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-	compile 'org.apache.rocketmq:rocketmq-client:4.3.0'
+	compile 'mysql:mysql-connector-java'
+	compile 'org.mariadb.jdbc:mariadb-java-client'
+	compile 'org.apache.rocketmq:rocketmq-client:4.4.0'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		exclude group: 'junit', module: 'junit'
@@ -49,4 +49,9 @@ test {
 asciidoctor {
 	inputs.dir snippetsDir
 	dependsOn test
+}
+
+task(testRun, dependsOn: 'classes', type: JavaExec) {
+    main = 'shenlin84.katacoda.scenarios.distributedtransactionjavascenario.TestRun'
+    classpath = sourceSets.main.runtimeClasspath
 }

@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.UserAccount;
 
 import java.util.*;
+
+import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.*;
 import org.apache.rocketmq.remoting.common.*;
@@ -28,10 +33,12 @@ public class DemoController {
     public ResponseEntity<String> testRMQ() throws Exception {
         DefaultMQProducer producer = new DefaultMQProducer("group1");
         producer.setNamesrvAddr("localhost:9876");
+        
 
         try {
             producer.start();
-            Message msg = new Message("TBW102", "TagTest", ("Hello RMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
+            // producer.setCreateTopicKey("Test");
+            Message msg = new Message("Test", "TagTest", ("Hello RMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
             SendResult sendResult = producer.send(msg);
             System.out.println("SendResult: " + sendResult.getSendStatus());
         } catch (Exception e) {
