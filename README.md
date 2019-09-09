@@ -1,15 +1,15 @@
 ## Build
 
-./gradlew.bat clean build
 ./gradlew clean build
 
-## Watch src file changes and continously build. Run in two separate terminals.
-./gradlew.bat -t build 
-./gradlew.bat bootRun
+## Watch src file changes and continously build.
+./gradlew -t build
 
-
-./gradlew -t build 
+### RocketMQ producer web service
 ./gradlew bootRun
+
+### RocketMQ consumer
+./gradlew consumer
 
 ## Start RocketMQ locally within Docker
 
@@ -30,3 +30,8 @@ tail -f ~/logs/rocketmqlogs/namesrv.log
 
 nohup sh bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true &
 tail -f ~/logs/rocketmqlogs/broker.log
+
+
+## Start MariaDB locally as 
+docker run --name mariadb1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mypass -d mariadb/server:10.3
+docker run --name mariadb2 -p 3307:3306 -e MYSQL_ROOT_PASSWORD=mypass -d mariadb/server:10.3

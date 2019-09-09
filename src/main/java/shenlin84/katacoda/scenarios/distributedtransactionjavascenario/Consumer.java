@@ -11,8 +11,6 @@ import org.apache.rocketmq.common.message.MessageExt;
 public class Consumer {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("HelloWorld test");
-
 		DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name");
          
         // Specify name server addresses.

@@ -34,25 +34,6 @@
             xhttp.send();
         }
 
-        function createDB() {
-            setMask(true);
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    var data = xhttp.responseText;
-                    var span = document.querySelector('span#createDBFeedback');
-                    var results = JSON.parse(data);
-                    var boACreateDBMsg = getResultMessage('BoA', results[0]);
-                    var chaseCreateDBMsg = getResultMessage('Chase', results[1]);
-                    span.innerText = boACreateDBMsg + ' ' + chaseCreateDBMsg;
-                    setMask(false);
-                }
-            };
-
-            xhttp.open("POST", "/createDB", true);
-            xhttp.setRequestHeader("Content-type", "application/json");
-            xhttp.send();
-        }
-
         function createBoAUser() {
             var user = document.querySelector('input#boaUser').value;
             var balance = document.querySelector('input#boaUserBalance').value;
@@ -132,12 +113,6 @@
     <div style="background: #F9F9F9;">
         <h3>Test RMQ</h3>
         <button id="testRMQ" onClick='testRMQ()'>Test RMQ</button>
-    </div>
-
-    <div style="background: #F9F9F9;">
-        <h3>Create BankAccount database for Bank of America and Chase</h3>
-        <button id="createDB" onClick='createDB()'>Create</button>
-        <span id='createDBFeedback'></span>
     </div>
 
     <div style="background: #F9F9F9;">
