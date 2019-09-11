@@ -1,4 +1,4 @@
-package shenlin84.katacoda.scenarios.distributedtransactionjavascenario;
+package shenlin84.katacoda.scenarios.distributedtransactionjavascenario.standalone;
 
 import java.util.List;
 
@@ -10,28 +10,27 @@ import org.apache.rocketmq.common.message.MessageExt;
 
 public class Consumer {
 
-	public static void main(String[] args) throws Exception {
-		DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name");
-         
+    public static void main(String[] args) throws Exception {
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("group1");
+
         // Specify name server addresses.
         consumer.setNamesrvAddr("localhost:9876");
-        
+
         // Subscribe one more more topics to consume.
         consumer.subscribe("Test", "*");
         // Register callback to execute on arrival of messages fetched from brokers.
         consumer.registerMessageListener(new MessageListenerConcurrently() {
 
             @Override
-            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
-                ConsumeConcurrentlyContext context) {
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
                 System.out.printf("%s Receive New Messages: %s %n", Thread.currentThread().getName(), msgs);
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
 
-        //Launch the consumer instance.
+        // Launch the consumer instance.
         consumer.start();
 
         System.out.printf("Consumer Started.%n");
-	}
+    }
 }

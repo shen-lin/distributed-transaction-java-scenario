@@ -56,6 +56,12 @@ asciidoctor {
 }
 
 task(consumer, dependsOn: 'classes', type: JavaExec) {
-    main = 'shenlin84.katacoda.scenarios.distributedtransactionjavascenario.TestRun'
+    main = 'shenlin84.katacoda.scenarios.distributedtransactionjavascenario.standalone.Consumer'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+task(txproducer, dependsOn: 'classes', type: JavaExec) {
+    main = 'shenlin84.katacoda.scenarios.distributedtransactionjavascenario.standalone.TransactionProducer'
+    classpath = sourceSets.main.runtimeClasspath
+}
+

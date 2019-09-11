@@ -57,9 +57,9 @@ public class DemoController {
 
             if ("boa".equals(userAccount.getBank())) {
                 this.mariaDB1Repo.save(userAccount);
-            } 
-            
-            if ("chase".equals(userAccount.getBank())){
+            }
+
+            if ("chase".equals(userAccount.getBank())) {
                 this.mariaDB2Repo.save(userAccount);
             }
             this.mariaDB1Repo.save(userAccount);
@@ -67,5 +67,10 @@ public class DemoController {
         } catch (Exception e) {
             return new ResponseEntity<String>("Entity creation failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public ResponseEntity<String> bankTransfer(@RequestBody UserAccount userAccount) {
+
+        return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);
     }
 }
