@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.repo.MariaDB1UserAccountRepo;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb2.repo.MariaDB2UserAccountRepo;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.UserAccount;
+import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.rmq.RmqTxProducerPool;
 
 import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.*;
@@ -17,13 +18,16 @@ import org.apache.rocketmq.remoting.common.*;
 @RestController
 public class DemoController {
 
+    private final RmqTxProducerPool pool;
     private final MariaDB1UserAccountRepo mariaDB1Repo;
     private final MariaDB2UserAccountRepo mariaDB2Repo;
 
     @Autowired
-    public DemoController(MariaDB1UserAccountRepo mariaDB1Repo, MariaDB2UserAccountRepo mariaDB2Repo) {
+    public DemoController(MariaDB1UserAccountRepo mariaDB1Repo, MariaDB2UserAccountRepo mariaDB2Repo,
+            RmqTxProducerPool pool) {
         this.mariaDB1Repo = mariaDB1Repo;
         this.mariaDB2Repo = mariaDB2Repo;
+        this.pool = pool;
     }
 
     /**
