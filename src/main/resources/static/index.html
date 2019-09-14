@@ -131,12 +131,16 @@
         function transfer() {
             var sender = document.querySelector('input#sender').value;
             var receiver = document.querySelector('input#receiver').value;
+            var senderBank = document.querySelector('input#senderBank').value;
+            var receiverBank = document.querySelector('input#receiverBank').value;
             var amount = document.querySelector('input#amount').value;
-            console.log(sender, receiver, amount);
+            console.log(sender, senderBank, receiver, receiverBank, amount);
 
             var data = {
                 sender: sender,
+                senderBank: senderBank,
                 receiver: receiver,
+                receiverBank: receiverBank,
                 amount: amount
             };
 
@@ -199,8 +203,12 @@
 
     <div style="background: #F9F9F9;">
         <h3>Transfer an amount between two accounts</h3>
-        Sender: <input id="sender" value='alex'></input>
-        Receiver: <input id="receiver" value="bob"></input>
+        Sender: 
+        <input id="sender" value='alex'></input>
+        <input id="senderBank" value='boa'></input>
+        Receiver: 
+        <input id="receiver" value="bob"></input>
+        <input id="receiverBank" value='chase'></input>
         Amount: <input id="amount" value="15"></input>
         <button id="transfer" onClick='transfer()'>Transfer</button>
         <span id='transferFeedback'></span>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.repo.MariaDB1UserAccountRepo;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb2.repo.MariaDB2UserAccountRepo;
+import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.Transfer;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.UserAccount;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.rmq.RmqTxProducerPool;
 
@@ -19,13 +20,13 @@ import org.apache.rocketmq.remoting.common.*;
 @RestController
 public class DemoController {
 
-    private final RmqTxProducerPool pool;
+    private final RmqTxProducerPool<TransactionMQProducer> pool;
     private final MariaDB1UserAccountRepo mariaDB1Repo;
     private final MariaDB2UserAccountRepo mariaDB2Repo;
 
     @Autowired
     public DemoController(MariaDB1UserAccountRepo mariaDB1Repo, MariaDB2UserAccountRepo mariaDB2Repo,
-            RmqTxProducerPool pool) {
+            RmqTxProducerPool<TransactionMQProducer> pool) {
         this.mariaDB1Repo = mariaDB1Repo;
         this.mariaDB2Repo = mariaDB2Repo;
         this.pool = pool;
@@ -105,8 +106,19 @@ public class DemoController {
         }
     }
 
-    public ResponseEntity<String> bankTransfer(@RequestBody UserAccount userAccount) {
+    @RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> bankTransfer(@RequestBody Transfer transfer) {
 
-        return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);
+        try {
+            System.out.println(transfer);
+            TransactionMQProducer producer = this.pool.borrowObject();
+            System.out.println(producer.getClientIP());
+
+            this.pool.returnObject(producer);
+
+            return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Transfer failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
