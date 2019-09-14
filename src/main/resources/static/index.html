@@ -79,6 +79,54 @@
             xhttp.send(JSON.stringify(data));
         }
 
+        function readBoAUser() {
+            var user = document.querySelector('input#boaUserRead').value;
+            readUser(user, 'boa');
+        }
+
+        function readChaseUser() {
+            var user = document.querySelector('input#chaseUserRead').value;
+            readUser(user, 'chase');
+        }
+
+        function readUser(user, bank) {
+            console.log(user, bank);
+            var data = {
+                user: user,
+                balance: 0,
+                bank: bank
+            };
+
+            var feedbackElement;
+            var inputElement;
+            if (bank === 'boa') {
+                feedbackElement = 'span#readBoAUserFeedback';
+                inputElement = 'input#boaUserBalanceRead';
+            }
+            if (bank === 'chase') {
+                feedbackElement = 'span#readChaseUserFeedback';
+                inputElement = 'input#chaseUserBalanceRead';
+            }
+
+
+            setMask(true);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = JSON.parse(xhttp.responseText);
+                    if (xhttp.status === 200) {
+                        document.querySelector(inputElement).value = data.balance;
+                    } else {
+                        document.querySelector(feedbackElement).innerText = 'Failed';
+                    }
+                    setMask(false);
+                }
+            };
+
+            xhttp.open("POST", "/getBalance", true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send(JSON.stringify(data));
+        }
+
         function transfer() {
             var sender = document.querySelector('input#sender').value;
             var receiver = document.querySelector('input#receiver').value;
@@ -124,11 +172,27 @@
     </div>
 
     <div style="background: #F9F9F9;">
+        <h3>Read Bank of America user balance</h3>
+        User: <input id="boaUserRead" value='alex'></input>
+        Account balance: <input id="boaUserBalanceRead" value=""></input>
+        <button id="readBoAUser" onClick='readBoAUser()'>Read</button>
+        <span id='readBoAUserFeedback'></span>
+    </div>
+
+    <div style="background: #F9F9F9;">
         <h3>Create Chase user</h3>
         User: <input id="chaseUser" value='bob'></input>
-        Initial account balance: <input id="chaseUserBalance" value="100"></input>
+        Account balance: <input id="chaseUserBalance" value="100"></input>
         <button id="createChaseUser" onClick='createChaseUser()'>Create</button>
         <span id='createChaseUserFeedback'></span>
+    </div>
+
+    <div style="background: #F9F9F9;">
+        <h3>Read Chase user</h3>
+        User: <input id="chaseUserRead" value='bob'></input>
+        Account balance: <input id="chaseUserBalanceRead" value=""></input>
+        <button id="readChaseUser" onClick='readChaseUser()'>Read</button>
+        <span id='readChaseUserFeedback'></span>
     </div>
 
 

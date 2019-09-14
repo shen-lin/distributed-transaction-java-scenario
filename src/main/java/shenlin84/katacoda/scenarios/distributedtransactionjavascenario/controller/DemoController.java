@@ -66,10 +66,29 @@ public class DemoController {
             if ("chase".equals(userAccount.getBank())) {
                 this.mariaDB2Repo.save(userAccount);
             }
-            this.mariaDB1Repo.save(userAccount);
+
             return new ResponseEntity<String>("Entity created", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>("Entity creation failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/getBalance", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getBalance(@RequestBody UserAccount userAccount) {
+        try {
+            System.out.println(userAccount.getUser() + ' ' + userAccount.getBank());
+            String user = userAccount.getUser();
+            UserAccount result = null;
+            if ("boa".equals(userAccount.getBank())) {
+                result = this.mariaDB1Repo.findByUser(user);
+            }
+
+            if ("chase".equals(userAccount.getBank())) {
+                result = this.mariaDB2Repo.findByUser(user);
+            }
+            return new ResponseEntity<UserAccount>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Failed to access user balance", HttpStatus.OK);
         }
     }
 

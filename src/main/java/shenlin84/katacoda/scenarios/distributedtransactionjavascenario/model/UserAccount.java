@@ -18,7 +18,7 @@ public class UserAccount implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    
+
     @Column(name = "user")
     private String user;
 
@@ -53,5 +53,9 @@ public class UserAccount implements Serializable {
 
     public void setBalance(String bank) {
         this.bank = bank;
+    }
+
+    public String toString() {
+        return "";
     }
 }
