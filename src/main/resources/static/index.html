@@ -66,9 +66,10 @@
             setMask(true);
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
-                    var data = xhttp.responseText;
-                    if (data === 'OK') {
-                        document.querySelector(feedbackElement).innerText = 'OK';
+                    if (xhttp.status === 200) {
+                        document.querySelector(feedbackElement).innerText = xhttp.responseText;
+                    } else {
+                        document.querySelector(feedbackElement).innerText = 'Failed to create user';
                     }
                     setMask(false);
                 }

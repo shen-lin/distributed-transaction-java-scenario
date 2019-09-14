@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.repo.MariaDB1UserAccountRepo;
@@ -55,19 +56,31 @@ public class DemoController {
     }
 
     @RequestMapping(value = "/createUser", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
     public ResponseEntity<String> createUser(@RequestBody UserAccount userAccount) {
         try {
             System.out.println(userAccount.getUser() + ' ' + userAccount.getBalance() + ' ' + userAccount.getBank());
 
+            String feedback = "Entity already exists";
             if ("boa".equals(userAccount.getBank())) {
-                this.mariaDB1Repo.save(userAccount);
+                UserAccount resultUserAccount = this.mariaDB1Repo.findByUser(userAccount.getUser());
+                System.out.println("Found user " + resultUserAccount);
+                if (resultUserAccount == null) {
+                    this.mariaDB1Repo.save(userAccount);
+                    feedback = "Entity created";
+                }
             }
 
             if ("chase".equals(userAccount.getBank())) {
-                this.mariaDB2Repo.save(userAccount);
+                UserAccount resultUserAccount = this.mariaDB2Repo.findByUser(userAccount.getUser());
+                System.out.println("Found user " + resultUserAccount);
+                if (resultUserAccount == null) {
+                    this.mariaDB2Repo.save(userAccount);
+                    feedback = "Entity created";
+                }
             }
 
-            return new ResponseEntity<String>("Entity created", HttpStatus.OK);
+            return new ResponseEntity<String>(feedback, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>("Entity creation failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
