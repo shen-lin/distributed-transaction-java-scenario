@@ -11,7 +11,7 @@ import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb2.repo.MariaDB2UserAccountRepo;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.Transfer;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.UserAccount;
-import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.rmq.RmqTxProducerPool;
+import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.rmq.RmqTxProducer;
 
 import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.*;
@@ -20,16 +20,16 @@ import org.apache.rocketmq.remoting.common.*;
 @RestController
 public class DemoController {
 
-    private final RmqTxProducerPool<TransactionMQProducer> pool;
+    private final RmqTxProducer producerClient;
     private final MariaDB1UserAccountRepo mariaDB1Repo;
     private final MariaDB2UserAccountRepo mariaDB2Repo;
 
     @Autowired
     public DemoController(MariaDB1UserAccountRepo mariaDB1Repo, MariaDB2UserAccountRepo mariaDB2Repo,
-            RmqTxProducerPool<TransactionMQProducer> pool) {
+            RmqTxProducer producerClient) {
         this.mariaDB1Repo = mariaDB1Repo;
         this.mariaDB2Repo = mariaDB2Repo;
-        this.pool = pool;
+        this.producerClient = producerClient;
     }
 
     /**
@@ -37,24 +37,25 @@ public class DemoController {
      * 
      * @return
      */
-    @RequestMapping(value = "/testRMQ", method = RequestMethod.POST)
-    public ResponseEntity<String> testRMQ() throws Exception {
-        DefaultMQProducer producer = new DefaultMQProducer("group1");
-        producer.setNamesrvAddr("localhost:9876");
+    // @RequestMapping(value = "/testRMQ", method = RequestMethod.POST)
+    // public ResponseEntity<String> testRMQ() throws Exception {
+    // DefaultMQProducer producer = new DefaultMQProducer("group1");
+    // producer.setNamesrvAddr("localhost:9876");
 
-        try {
-            producer.start();
-            Message msg = new Message("Test", "TagTest", ("Hello RMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
-            SendResult sendResult = producer.send(msg);
-            System.out.println("SendResult: " + sendResult.getSendStatus());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            producer.shutdown();
-        }
-        System.out.println("Send response no matter what!!!");
-        return new ResponseEntity<String>("Test Succeeded", HttpStatus.OK);
-    }
+    // try {
+    // producer.start();
+    // Message msg = new Message("Test", "TagTest", ("Hello
+    // RMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
+    // SendResult sendResult = producer.send(msg);
+    // System.out.println("SendResult: " + sendResult.getSendStatus());
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // } finally {
+    // producer.shutdown();
+    // }
+    // System.out.println("Send response no matter what!!!");
+    // return new ResponseEntity<String>("Test Succeeded", HttpStatus.OK);
+    // }
 
     @RequestMapping(value = "/createUser", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
@@ -111,13 +112,15 @@ public class DemoController {
 
         try {
             System.out.println(transfer);
-            TransactionMQProducer producer = this.pool.borrowObject();
-            System.out.println(producer.getClientIP());
-
-            this.pool.returnObject(producer);
+            System.out.println(this.producerClient.getProducer().getClientIP());
+            Message msg = new Message("Test", "transactionId", "KEY",
+                    ("Hello RocketMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
+            SendResult sendResult = this.producerClient.getProducer().sendMessageInTransaction(msg, null);
+            System.out.printf("%s%n", sendResult);
 
             return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<String>("Transfer failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
