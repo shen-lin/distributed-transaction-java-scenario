@@ -20,7 +20,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-
 @ComponentScan
 @Configuration
 @EnableTransactionManagement
@@ -28,10 +27,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.repo" })
 public class MariaDB1Config {
 
-
     @Autowired
     private Environment env;
-    
+
     @Primary
     @Bean(name = "mariaDB1DataSource")
     public DataSource mariaDB1DataSource() {

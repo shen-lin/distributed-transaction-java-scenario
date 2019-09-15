@@ -29,7 +29,6 @@ public class MariaDB2Config {
 
     @Autowired
     private Environment env;
-    
 
     @Bean(name = "mariaDB2DataSource")
     public DataSource mariaDB1DataSource() {
@@ -44,7 +43,9 @@ public class MariaDB2Config {
     @Bean(name = "mariaDB2EntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean mariaDB2EntityManagerFactory(EntityManagerFactoryBuilder builder,
             @Qualifier("mariaDB2DataSource") DataSource dataSource) {
-        return builder.dataSource(dataSource).packages("shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model").persistenceUnit("userAccount").build();
+        return builder.dataSource(dataSource)
+                .packages("shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model")
+                .persistenceUnit("userAccount").build();
     }
 
     @Bean(name = "mariaDB2TransactionManager")
