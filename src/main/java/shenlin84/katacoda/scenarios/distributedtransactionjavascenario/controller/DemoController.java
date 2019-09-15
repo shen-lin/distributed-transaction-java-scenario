@@ -32,30 +32,32 @@ public class DemoController {
         this.producerClient = producerClient;
     }
 
-    /**
-     * Send test message to local RMQ
-     * 
-     * @return
-     */
-    // @RequestMapping(value = "/testRMQ", method = RequestMethod.POST)
-    // public ResponseEntity<String> testRMQ() throws Exception {
-    // DefaultMQProducer producer = new DefaultMQProducer("group1");
-    // producer.setNamesrvAddr("localhost:9876");
+    @RequestMapping(value = "/startProducer", method = RequestMethod.POST)
+    public ResponseEntity<String> startProducer() throws Exception {
+        TransactionMQProducer producer = this.producerClient.getProducer();
+        try {
+            producer.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            producer.shutdown();
+            return new ResponseEntity<String>("Start Producer Failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
 
-    // try {
-    // producer.start();
-    // Message msg = new Message("Test", "TagTest", ("Hello
-    // RMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
-    // SendResult sendResult = producer.send(msg);
-    // System.out.println("SendResult: " + sendResult.getSendStatus());
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // } finally {
-    // producer.shutdown();
-    // }
-    // System.out.println("Send response no matter what!!!");
-    // return new ResponseEntity<String>("Test Succeeded", HttpStatus.OK);
-    // }
+        }
+        return new ResponseEntity<String>("Start Producer Succeeded", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/stopProducer", method = RequestMethod.POST)
+    public ResponseEntity<String> stopProducer() throws Exception {
+        TransactionMQProducer producer = this.producerClient.getProducer();
+        try {
+            producer.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>("Stop Producer Failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>("Stop Producer Succeeded", HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/createUser", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
@@ -115,7 +117,7 @@ public class DemoController {
             System.out.println(this.producerClient.getProducer().getClientIP());
             Message msg = new Message("Test", "transactionId", "KEY",
                     ("Hello RocketMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
-            SendResult sendResult = this.producerClient.getProducer().sendMessageInTransaction(msg, null);
+            SendResult sendResult = this.producerClient.getProducer().sendMessageInTransaction(msg, transfer);
             System.out.printf("%s%n", sendResult);
 
             return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);

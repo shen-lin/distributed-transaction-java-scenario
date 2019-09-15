@@ -32,7 +32,6 @@ public class RmqTxProducer {
         this.producer.setExecutorService(executorService);
         this.producer.setTransactionListener(this.transactionListener);
         this.producer.setNamesrvAddr("localhost:9876");
-        this.producer.start();
     }
 
     public TransactionMQProducer getProducer() {

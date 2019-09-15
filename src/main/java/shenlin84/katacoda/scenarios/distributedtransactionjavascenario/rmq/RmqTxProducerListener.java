@@ -9,14 +9,17 @@ import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.stereotype.Component;
 
+import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.Transfer;
+
 @Component
 public class RmqTxProducerListener implements TransactionListener {
-    private AtomicInteger transactionIndex = new AtomicInteger(0);
 
+    private AtomicInteger transactionIndex = new AtomicInteger(0);
     private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
 
     @Override
     public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+        System.out.println("Callbak of prepare: " + (Transfer) arg);
         int value = transactionIndex.getAndIncrement();
         int status = value % 3;
         localTrans.put(msg.getTransactionId(), status);
