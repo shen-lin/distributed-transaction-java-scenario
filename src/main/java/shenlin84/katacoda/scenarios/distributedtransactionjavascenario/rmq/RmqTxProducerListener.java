@@ -5,10 +5,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.transaction.Transactional;
 
+import com.google.gson.Gson;
+
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionListener;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.springframework.stereotype.Component;
 
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.TransactionAudit;
@@ -19,6 +22,7 @@ import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb2.
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb1.repo.MariaDB1UserAccountRepo;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.mariadb2.repo.MariaDB2UserAccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.GsonJsonParser;
 
 @Component
 public class RmqTxProducerListener implements TransactionListener {
@@ -39,17 +43,23 @@ public class RmqTxProducerListener implements TransactionListener {
 
     /**
      * MQ ack prepare message received. It notifies producer to execute local
-     * commit. If producer failed before being notified, MQ might periodically
-     * trigger this call? Might receive duplicate messages. Need to check for
-     * dulicate message.
+     * commit. If producer failed before being notified, mq has the commit log.
+     * Therefore, mq will call producer and trigger checkLocalTransaction to check
+     * transaction status.
      */
     @Override
     public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
-        Transfer transfer = (Transfer) arg;
-        String txid = msg.getTransactionId();
-        System.out.println("Callbak of prepare message: " + transfer + " " + txid);
-        this.commitTransaction(transfer, txid);
-        return LocalTransactionState.UNKNOW;
+        try {
+            String data = new String(msg.getBody(), RemotingHelper.DEFAULT_CHARSET);
+            Transfer transfer = new Gson().fromJson(data, Transfer.class);
+            String txid = msg.getTransactionId();
+            System.out.println("Callbak of prepare message: " + transfer);
+
+            this.commitTransaction(transfer, txid);
+            return LocalTransactionState.COMMIT_MESSAGE;
+        } catch (Exception e) {
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+        }
     }
 
     /**
@@ -61,10 +71,16 @@ public class RmqTxProducerListener implements TransactionListener {
     public LocalTransactionState checkLocalTransaction(MessageExt msg) {
         String txid = msg.getTransactionId();
         System.out.println("MQ queries producer " + txid);
-        System.out.println(msg.getMsgId());
+        System.out.println("Message ID: " + msg.getMsgId());
         TransactionAudit txAudit = this.mariaDB1TxRepo.findByTxId(txid);
-        System.out.println("Found tx id: " + txAudit.getTxid());
-        return LocalTransactionState.UNKNOW;
+
+        if (txAudit != null && txid.equals(txAudit.getTxid())) {
+            System.out.println("Found tx id: " + txAudit.getTxid());
+            return LocalTransactionState.COMMIT_MESSAGE;
+        } else {
+            System.out.println("Rollback");
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+        }
     }
 
     @Transactional

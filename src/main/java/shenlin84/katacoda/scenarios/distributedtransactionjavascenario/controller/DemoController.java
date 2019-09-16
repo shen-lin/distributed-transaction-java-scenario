@@ -13,6 +13,8 @@ import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.Tra
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.model.UserAccount;
 import shenlin84.katacoda.scenarios.distributedtransactionjavascenario.rmq.RmqTxProducer;
 
+import com.google.gson.Gson;
+
 import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.*;
 import org.apache.rocketmq.remoting.common.*;
@@ -63,12 +65,12 @@ public class DemoController {
     @Transactional
     public ResponseEntity<String> createUser(@RequestBody UserAccount userAccount) {
         try {
-            System.out.println(userAccount.getUser() + ' ' + userAccount.getBalance() + ' ' + userAccount.getBank());
+            System.out.println("Create user: " + userAccount.getUser() + ' ' + userAccount.getBalance() + ' '
+                    + userAccount.getBank());
 
             String feedback = "Entity already exists";
             if ("boa".equals(userAccount.getBank())) {
                 UserAccount resultUserAccount = this.mariaDB1Repo.findByUser(userAccount.getUser());
-                System.out.println("Found user " + resultUserAccount);
                 if (resultUserAccount == null) {
                     this.mariaDB1Repo.save(userAccount);
                     feedback = "Entity created";
@@ -77,7 +79,6 @@ public class DemoController {
 
             if ("chase".equals(userAccount.getBank())) {
                 UserAccount resultUserAccount = this.mariaDB2Repo.findByUser(userAccount.getUser());
-                System.out.println("Found user " + resultUserAccount);
                 if (resultUserAccount == null) {
                     this.mariaDB2Repo.save(userAccount);
                     feedback = "Entity created";
@@ -93,7 +94,7 @@ public class DemoController {
     @RequestMapping(value = "/getBalance", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getBalance(@RequestBody UserAccount userAccount) {
         try {
-            System.out.println(userAccount.getUser() + ' ' + userAccount.getBank());
+            System.out.println("Get balance: " + userAccount.getUser() + ' ' + userAccount.getBank());
             String user = userAccount.getUser();
             UserAccount result = null;
             if ("boa".equals(userAccount.getBank())) {
@@ -113,11 +114,12 @@ public class DemoController {
     public ResponseEntity<String> bankTransfer(@RequestBody Transfer transfer) {
 
         try {
-            System.out.println(transfer);
+            System.out.println("Start transfer service: " + transfer);
             System.out.println(this.producerClient.getProducer().getClientIP());
-            Message msg = new Message("Test", "transactionId", "KEY",
-                    ("Hello RocketMQ").getBytes(RemotingHelper.DEFAULT_CHARSET));
-            SendResult sendResult = this.producerClient.getProducer().sendMessageInTransaction(msg, transfer);
+            String body = new Gson().toJson(transfer);
+            Message msg = new Message("Test", "transfer", "KEY", (body).getBytes(RemotingHelper.DEFAULT_CHARSET));
+
+            SendResult sendResult = this.producerClient.getProducer().sendMessageInTransaction(msg, null);
             System.out.printf("%s%n", sendResult);
 
             return new ResponseEntity<String>("Transfer Submitted", HttpStatus.OK);

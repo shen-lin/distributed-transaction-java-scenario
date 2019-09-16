@@ -39,6 +39,7 @@ dependencies {
 	compile 'org.hibernate:hibernate-core'
 	compile 'org.hibernate:hibernate-entitymanager'
 	compile 'org.apache.commons:commons-pool2'
+	compile 'com.google.code.gson:gson'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		exclude group: 'junit', module: 'junit'
