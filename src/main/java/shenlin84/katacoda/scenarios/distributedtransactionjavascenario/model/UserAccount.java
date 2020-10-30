@@ -56,6 +56,6 @@ public class UserAccount implements Serializable {
     }
 
     public String toString() {
-        return "";
+        return this.bank + " " + this.user + " " + this.balance;
     }
 }
